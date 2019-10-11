@@ -71,6 +71,7 @@ var unitMap = map[string]uint64{
 
 var unitsBase2 = []string{"", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
 var unitsBase10 = []string{"", "kb", "mb", "gb", "tb", "pb", "eb"}
+var valuesBase2 = []uint64{0, Kibibyte, Mebibyte, Gibibyte, Tebibyte, Pebibyte, Exbibyte}
 var valuesBase10 = []uint64{0, Kilobyte, Megabyte, Gigabyte, Terabyte, Petabyte, Exabyte}
 
 func (sz *Size) UnmarshalText(bytes []byte) error {
@@ -96,7 +97,6 @@ func AsString(size uint64) string {
 
 	str := ""
 
-	// TODO: add support for powers of two units
 	if size%500 == 0 {
 		numDigits := int(math.Log10(float64(size))) + 1
 		i := numDigits / 3
@@ -105,6 +105,14 @@ func AsString(size uint64) string {
 			str += ".5"
 		}
 		str += unitsBase10[i]
+	} else if size%512 == 0 {
+		numDigits := int(math.Log2(float64(size))) + 1
+		i := numDigits / 9
+		str = strconv.FormatUint(size/valuesBase2[i], 10)
+		if size%valuesBase2[i] != 0 {
+			str += ".5"
+		}
+		str += unitsBase2[i]
 	} else {
 		str = strconv.FormatUint(size, 10)
 	}
