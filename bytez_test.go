@@ -7,17 +7,20 @@
 package bytez
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestParse(t *testing.T) {
+func TestAsInt(t *testing.T) {
 	var negative = []struct {
 		in string
 	}{
 		{""},
 		{"mb"},
+		{"2."},
 		{"2.5"},
 		{"2.mb"},
 		{"2.9mb"},
@@ -26,7 +29,10 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, test := range negative {
-		_, err := Parse(test.in)
+		_, err := AsInt(test.in)
+		if testing.Verbose() {
+			fmt.Printf("\"%v\" ==> %v\n", test.in, err)
+		}
 		require.Error(t, err)
 	}
 
@@ -44,35 +50,71 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, test := range positive {
-		out, err := Parse(test.in)
+		out, err := AsInt(test.in)
+		if testing.Verbose() {
+			fmt.Printf("\"%v\" --> %v\n", test.in, out)
+		}
 		require.NoError(t, err)
 		require.Equal(t, test.out, out)
 	}
 }
 
-func TestSize_AsString(t *testing.T) {
+func TestAsStr(t *testing.T) {
 	var tests = []struct {
 		in  uint64
 		out string
 	}{
+		{0, "0"},
 		{1, "1"},
 		{500, "500"},
+		//
 		{1000, "1kb"},
-		{1024, "1KiB"},
 		{1500, "1.5kb"},
-		{1536, "1.5KiB"},
 		{3000000, "3mb"},
-		{3145728, "3MiB"},
 		{3500000, "3.5mb"},
-		{3670016, "3.5MiB"},
 		{5000000000, "5gb"},
-		{5368709120, "5GiB"},
 		{5500000000, "5.5gb"},
+		//
+		{1024, "1KiB"},
+		{1536, "1.5KiB"},
+		{3145728, "3MiB"},
+		{3670016, "3.5MiB"},
+		{5368709120, "5GiB"},
 		{5905580032, "5.5GiB"},
+		//
+		{314159265359, "314159265359"},
 	}
 
 	for _, test := range tests {
-		out := AsString(test.in)
+		out := AsStr(test.in)
+		if testing.Verbose() {
+			fmt.Printf("%v --> %v\n", test.in, out)
+		}
 		require.Equal(t, test.out, out)
 	}
+}
+
+func TestMarshal(t *testing.T) {
+	type conf struct {
+		CacheSize Size `json:"cache_size"`
+	}
+
+	var cfg conf
+	var err error
+
+	cfgStr := `{"cache_size": "50mb"}`
+	err = json.Unmarshal([]byte(cfgStr), &cfg)
+	if testing.Verbose() {
+		fmt.Printf("%+v  -->  %+v\n", cfgStr, cfg)
+	}
+	require.NoError(t, err)
+	require.Equal(t, 50*Megabyte, uint64(cfg.CacheSize))
+
+	cfg = conf{CacheSize: Size(100*Mebibyte + Mebibyte/2)}
+	bytes, err := json.Marshal(cfg)
+	if testing.Verbose() {
+		fmt.Printf("%+v  -->  %+v\n", cfg, string(bytes))
+	}
+	require.NoError(t, err)
+	require.Equal(t, `{"cache_size":"100.5MiB"}`, string(bytes))
 }

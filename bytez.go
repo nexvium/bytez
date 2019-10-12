@@ -24,13 +24,13 @@ package bytez
 
 import (
 	"errors"
-	"math"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
-// Type Size can be used to automatically marshal and unmarshal units to and from text. This is
-// especially useful when parsing or outputting JSON, YAML, etc.
+// Type Size can be used to automatically marshal and unmarshal byte size specifications to and
+// from text when parsing or outputting JSON, YAML, etc.
 type Size uint64
 
 // Decimal (SI) constants that fit in 64 bits
@@ -71,11 +71,11 @@ var unitMap = map[string]uint64{
 
 var unitsBase2 = []string{"", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
 var unitsBase10 = []string{"", "kb", "mb", "gb", "tb", "pb", "eb"}
-var valuesBase2 = []uint64{0, Kibibyte, Mebibyte, Gibibyte, Tebibyte, Pebibyte, Exbibyte}
-var valuesBase10 = []uint64{0, Kilobyte, Megabyte, Gigabyte, Terabyte, Petabyte, Exabyte}
+var valuesBase2 = []uint64{1, Kibibyte, Mebibyte, Gibibyte, Tebibyte, Pebibyte, Exbibyte}
+var valuesBase10 = []uint64{1, Kilobyte, Megabyte, Gigabyte, Terabyte, Petabyte, Exabyte}
 
 func (sz *Size) UnmarshalText(bytes []byte) error {
-	val, err := Parse(string(bytes))
+	val, err := AsInt(string(bytes))
 	if err != nil {
 		return err
 	}
@@ -84,89 +84,97 @@ func (sz *Size) UnmarshalText(bytes []byte) error {
 	return nil
 }
 
-func (sz *Size) MarshalText() ([]byte, error) {
-	return []byte(AsString(uint64(*sz))), nil
+func (sz Size) MarshalText() ([]byte, error) {
+	return []byte(AsStr(uint64(sz))), nil
 }
 
-// AsString returns the byte size as a string. The function does its best to return a value that
-// uses one of the supported units, but it is not guaranteed to be able to.
-func AsString(size uint64) string {
+// AsStr accepts a number of bytes, like 4194304, and returns the byte size as a string,
+// like "4MiB". The function tries to return a value that uses one of the supported units but it
+// is not guaranteed to do so.
+func AsStr(size uint64) string {
 	if size < 1000 {
 		return strconv.FormatUint(size, 10)
 	}
 
-	str := ""
+	var base uint64
+	var values []uint64
+	var units []string
 
 	if size%500 == 0 {
-		numDigits := int(math.Log10(float64(size))) + 1
-		i := numDigits / 3
-		str = strconv.FormatUint(size/valuesBase10[i], 10)
-		if size%valuesBase10[i] != 0 {
-			str += ".5"
-		}
-		str += unitsBase10[i]
+		base = 1000
+		values = valuesBase10
+		units = unitsBase10
 	} else if size%512 == 0 {
-		numDigits := int(math.Log2(float64(size))) + 1
-		i := numDigits / 9
-		str = strconv.FormatUint(size/valuesBase2[i], 10)
-		if size%valuesBase2[i] != 0 {
-			str += ".5"
-		}
-		str += unitsBase2[i]
+		base = 1024
+		values = valuesBase2
+		units = unitsBase2
 	} else {
-		str = strconv.FormatUint(size, 10)
+		return strconv.FormatUint(size, 10)
 	}
+
+	var idx int
+	for sz := size; sz >= base; sz /= base {
+		idx++
+	}
+
+	str := strconv.FormatUint(size/values[idx], 10)
+	if size%values[idx] != 0 {
+		str += ".5"
+	}
+	str += units[idx]
 
 	return str
 }
 
-// Parse converts a size specification like "4MiB" and returns the number in bytes like 4194304.
+// AsInt accepts a byte size, like "4MiB", and returns the exact number of bytes, like 4194304.
 // The leading number should be a whole number, but as a special case the fractions ".0" and ".5"
-// are allowed, like "1.5mb" to indicate 1500000 bytes. A single space is allowed between the
-// number and the units.
-func Parse(str string) (uint64, error) {
+// are allowed, like "1.5mb" to indicate 1,500,000 bytes. A single space is allowed between
+// the number and the units.
+func AsInt(str string) (uint64, error) {
 	var num uint64
+	var idx int
 
-	var i int
 	str = strings.Trim(str, " \t\r\n")
-	for i = 0; i < len(str); i++ {
-		if str[i] < '0' || str[i] > '9' {
+	for idx = 0; idx < len(str); idx++ {
+		if str[idx] < '0' || str[idx] > '9' {
 			break
 		} else {
-			num = num*10 + uint64(str[i]-'0')
+			num = num*10 + uint64(str[idx]-'0')
 		}
 	}
 
-	if i == 0 {
-		return 0, errors.New("no number in units")
+	if idx == 0 {
+		return 0, errors.New("no number in string")
 	}
 
 	// If the number has no units label, it is an exact number of bytes.
-	if i == len(str) {
+	if idx == len(str) {
 		return num, nil
 	}
 
 	// Special case: allow ".5" to specify half units like 2.5GiB, and ".0" for parity.
 	var addHalf uint64
-	if str[i] == '.' {
-		if i < len(str)-1 && str[i:i+2] == ".5" {
+	if str[idx] == '.' {
+		if idx < len(str)-1 && str[idx:idx+2] == ".5" {
 			addHalf = 1
-			i += 2
-		} else if i < len(str)-1 && str[i:i+2] == ".0" {
-			i += 2
+			idx += 2
+		} else if idx < len(str)-1 && str[idx:idx+2] == ".0" {
+			idx += 2
 		} else {
 			return 0, errors.New("invalid fractional part")
 		}
 	}
 
 	// A single space, not a tab or two spaces, is allowed.
-	if i < len(str) && str[i] == ' ' {
-		i++
+	if idx < len(str) && str[idx] == ' ' {
+		idx++
 	}
 
-	if str[i:] == "" {
+	if str[idx:] == "" {
 		return 0, errors.New("missing units")
-	} else if val, ok := unitMap[str[i:]]; ok {
+	} else if !unicode.IsLetter(rune(str[idx])) {
+		return 0, errors.New("invalid delimiter")
+	} else if val, ok := unitMap[str[idx:]]; ok {
 		num *= val
 		num += val / 2 * addHalf
 	} else {
