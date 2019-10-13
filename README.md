@@ -1,3 +1,7 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/codexnull/bytez)](https://goreportcard.com/badge/github.com/codexnull/bytez)
+[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/codexnull/bytez)
+[![LICENSE](https://img.shields.io/github/license/codexnull/bytez.svg?style=flat-square)](https://github.com//codexnull/bytez/blob/master/LICENSE)
+
 # bytez
 
 Package *bytez* provides functionality for working with large **byte** si**z**es and capacities in a
