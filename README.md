@@ -13,7 +13,7 @@ short yet unique.
 
 ## Installation
 
-Download and install module with
+Download and install module with:
 
     go get github.com/codexnull/bytez
 
@@ -23,13 +23,48 @@ To use, simply
 
     import github.com/codexnull/bytez
 
-Then the functions `bytez.AsStr()` and `bytez.AsInt()` can be used to convert to and from size
-specifications and number of bytes.
+in your code.
 
-For example, if `bufSize` is 16384, `bytez.AsStr(bufSize)` will return `"16KiB"`. And if `cacheSize`
+Then, sizes can be specified using constants. For example, the code
+
+```go
+bufSize := 16*bytez.Kibibyte
+buffer := make([]byte, bufSize)
+fmt.Printf("Buffer Size: %v (%v)\n", len(buffer), bytez.AsStr(bufSize))
+```
+
+outputs
+
+```text
+Buffer Size: 16384 (16KiB)
+```
+
+The functions `bytez.AsStr()` and `bytez.AsInt()` can be used to convert to and from size
+specifications and number of bytes. For example, if `bufSize` is 16384, `bytez.AsStr(bufSize)` will return `"16KiB"`. And if `cacheSize`
 is "8MiB", `bytez.AsInt(cacheSize)` will return `8388608`.
 
 The package also provides a `Size` type that supports marshaling to and from text using the
-functions above when marshaling to and from JSON, YAML, etc.
+functions above when marshaling to and from JSON, YAML, etc. So the code
 
-See the [godoc](https://godoc.org/github.com/codexnull/bytez) for more details.
+```go
+type Conf struct {
+    ...
+    CacheSize bytez.Size `json:"cache_size"`
+    ...
+}
+conf := Conf{CacheSize: bytez.Size(2 * bytez.Gibibyte)}
+```
+
+Will result in
+
+```text
+{
+  ...
+  "cache_size":"2GiB",
+  ...
+}
+```
+
+when `conf` is marshaled to JSON. Unmarshaling will result in the value `2 * bytez.Gibibyte` back.
+
+See the [godoc](https://godoc.org/github.com/codexnull/bytez) for details.
