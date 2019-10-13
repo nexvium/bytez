@@ -4,7 +4,7 @@
 	Copyright (c) 2019 Javier Alvarado
 */
 
-// bytez package encapsulates functionality for working with large byte sizes in a human-friendly
+// Package bytez encapsulates functionality for working with large byte sizes in a human-friendly
 // way. (The 'z' in the name is not an attempt to be cute but to create a package name that is
 // short yet unique.)
 //
@@ -29,8 +29,8 @@ import (
 	"unicode"
 )
 
-// Type Size can be used to automatically marshal and unmarshal byte size specifications to and
-// from text when parsing or outputting JSON, YAML, etc.
+// Size can be used to automatically marshal and unmarshal byte size specifications to and from
+// text when parsing or outputting JSON, YAML, etc.
 type Size uint64
 
 // Decimal (SI) constants that fit in 64 bits
@@ -74,6 +74,12 @@ var unitsBase10 = []string{"", "kb", "mb", "gb", "tb", "pb", "eb"}
 var valuesBase2 = []uint64{1, Kibibyte, Mebibyte, Gibibyte, Tebibyte, Pebibyte, Exbibyte}
 var valuesBase10 = []uint64{1, Kilobyte, Megabyte, Gigabyte, Terabyte, Petabyte, Exabyte}
 
+// MarshalText implements the encoding.TextMarshaler interface. The size is formatted as a string
+// using the largest units possible. Returned error is always nil.
+func (sz Size) MarshalText() ([]byte, error) {
+	return []byte(AsStr(uint64(sz))), nil
+}
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (sz *Size) UnmarshalText(bytes []byte) error {
 	val, err := AsInt(string(bytes))
 	if err != nil {
@@ -82,10 +88,6 @@ func (sz *Size) UnmarshalText(bytes []byte) error {
 
 	*sz = Size(val)
 	return nil
-}
-
-func (sz Size) MarshalText() ([]byte, error) {
-	return []byte(AsStr(uint64(sz))), nil
 }
 
 // AsStr accepts a number of bytes, like 4194304, and returns the byte size as a string,
