@@ -79,6 +79,7 @@ var valuesBase10 = []uint64{1, Kilobyte, Megabyte, Gigabyte, Terabyte, Petabyte,
 func (sz Size) MarshalText() ([]byte, error) {
 	return []byte(AsStr(uint64(sz))), nil
 }
+
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (sz *Size) UnmarshalText(bytes []byte) error {
 	val, err := AsInt(string(bytes))
