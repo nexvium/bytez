@@ -91,6 +91,11 @@ func (sz *Size) UnmarshalText(bytes []byte) error {
 	return nil
 }
 
+// Shorthand for AsStr(uint64(sz)).
+func (sz Size) AsStr() string {
+	return AsStr(uint64(sz))
+}
+
 // AsStr accepts a number of bytes, like 4194304, and returns the byte size as a string,
 // like "4MiB". The function tries to return a value that uses one of the supported units but it
 // is not guaranteed to do so.
