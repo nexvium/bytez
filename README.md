@@ -1,5 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/codexnull/bytez)](https://goreportcard.com/report/github.com/codexnull/bytez)
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/codexnull/bytez)
+[![GoDoc](https://godoc.org/github.com/codexnull/bytez?status.svg)](https://godoc.org/github.com/codexnull/bytez)
 [![LICENSE](https://img.shields.io/github/license/codexnull/bytez.svg?style=flat-square)](https://github.com//codexnull/bytez/blob/master/LICENSE)
 
 # bytez
