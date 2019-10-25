@@ -61,12 +61,12 @@ var unitMap = map[string]uint64{
 	"p": Petabyte, "pb": Petabyte, "pB": Petabyte,
 	"e": Exabyte, "eb": Exabyte, "eB": Exabyte,
 
-	"K": Kibibyte, "KB": Kibibyte, "Kb": Kibibyte, "KiB": Kibibyte,
-	"M": Mebibyte, "MB": Mebibyte, "Mb": Mebibyte, "MiB": Mebibyte,
-	"G": Gibibyte, "GB": Gibibyte, "Gb": Gibibyte, "GiB": Gibibyte,
-	"T": Tebibyte, "TB": Tebibyte, "Tb": Tebibyte, "TiB": Tebibyte,
-	"P": Pebibyte, "PB": Pebibyte, "Pb": Pebibyte, "PiB": Pebibyte,
-	"E": Exbibyte, "EB": Exbibyte, "Eb": Exbibyte, "EiB": Exbibyte,
+	"K": Kibibyte, "KB": Kibibyte, "Kb": Kibibyte, "Ki": Kibibyte, "KiB": Kibibyte,
+	"M": Mebibyte, "MB": Mebibyte, "Mb": Mebibyte, "Mi": Mebibyte, "MiB": Mebibyte,
+	"G": Gibibyte, "GB": Gibibyte, "Gb": Gibibyte, "Gi": Gibibyte, "GiB": Gibibyte,
+	"T": Tebibyte, "TB": Tebibyte, "Tb": Tebibyte, "Ti": Tebibyte, "TiB": Tebibyte,
+	"P": Pebibyte, "PB": Pebibyte, "Pb": Pebibyte, "Pi": Pebibyte, "PiB": Pebibyte,
+	"E": Exbibyte, "EB": Exbibyte, "Eb": Exbibyte, "Ei": Exbibyte, "EiB": Exbibyte,
 }
 
 var unitsBase2 = []string{"", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
