@@ -1,6 +1,6 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/codexnull/bytez)](https://goreportcard.com/report/github.com/codexnull/bytez)
-[![GoDoc](https://godoc.org/github.com/codexnull/bytez?status.svg)](https://godoc.org/github.com/codexnull/bytez)
-[![LICENSE](https://img.shields.io/github/license/codexnull/bytez.svg?style=flat-square)](https://github.com//codexnull/bytez/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nexvium/bytez)](https://goreportcard.com/report/github.com/nexvium/bytez)
+[![GoDoc](https://godoc.org/github.com/nexvium/bytez?status.svg)](https://godoc.org/github.com/nexvium/bytez)
+[![LICENSE](https://img.shields.io/github/license/nexvium/bytez.svg?style=flat-square)](https://github.com//nexvium/bytez/blob/master/LICENSE)
 
 # bytez
 
@@ -15,13 +15,13 @@ short yet unique.
 
 Download and install module with:
 
-    go get github.com/codexnull/bytez
+    go get github.com/nexvium/bytez
 
 ## Usage
 
 To use, simply
 
-    import github.com/codexnull/bytez
+    import github.com/nexvium/bytez
 
 in your code.
 
@@ -67,4 +67,4 @@ Will result in
 
 when `conf` is marshaled to JSON. Unmarshaling will result in the value `2 * bytez.Gibibyte` back.
 
-See the [godoc](https://godoc.org/github.com/codexnull/bytez) for details.
+See the [godoc](https://godoc.org/github.com/nexvium/bytez) for details.

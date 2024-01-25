@@ -1,4 +1,4 @@
-module github.com/codexnull/bytez
+module github.com/nexvium/bytez
 
 go 1.12
 
